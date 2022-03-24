@@ -211,7 +211,7 @@ Now, you can create objects easily.
 
 Once created, an immutable object cannot be modified. The concept of immutability is vital when creating a Java application. 
 Some of its benefits include thread safety, ease of caching, ease of object maintainability. 
-To understand why it is a good idea to make classes immutable refer this [article] (https://reflectoring.io/java-immutables/).
+To understand why it is a good idea to make classes immutable refer this [article](https://reflectoring.io/java-immutables/).
 
  ````java
     @Value
@@ -222,13 +222,13 @@ To understand why it is a good idea to make classes immutable refer this [articl
         private List<String> hobbies;
     }
  ````
-The @Value annotation ensures the state of the object is unchanged once created
+The @Value annotation ensures the state of the object is unchanged once created.
  - **Makes the class final**
  - **Makes the fields final**
  - **Generates only getters**
 
-In other words the @Value annotation is a shorthand of all of the below Lombok annotations *@Getter*, *@FieldDefaults(makeFinal=true, level=AccessLevel.PRIVATE)*,
-*@AllArgsConstructor*, *@ToString*, *@EqualsAndHashCode*.
+In other words the @Value annotation is a shorthand of all of the below Lombok annotations `@Getter`, `@FieldDefaults(makeFinal=true, level=AccessLevel.PRIVATE)`,
+`@AllArgsConstructor`, `@ToString`, `@EqualsAndHashCode`.
 We can further enforce immutability in the above example by adding **@AllArgsConstructor(access = AccessLevel.PRIVATE)** to make the constructor private and force object creation via the Builder pattern.
 
 These are some benefits of using Lombok. By now you would have realised the **value these annotations can provide to your code**.
@@ -291,7 +291,7 @@ The Repository class that fetches data from the table is as below:
     public interface BookRepository extends JpaRepository<Book, Long> {
     }
 ````
-There are two main problems here:
+There are three main problems here:
 1. In an entity class, not all attributes of an entity are initialized. **If an attribute has a FetchType of association LAZY,
 it will be invoked only when the attribute is used in the application**. However, @ToString(corresponding toString() method) would compute all attributes 
 of an entity making one or multiple database calls which can unintentionally cause performance issues.
@@ -299,14 +299,14 @@ of an entity making one or multiple database calls which can unintentionally cau
 3. In case of associations like @ManyToMany between 2 entities, **logging the entity data could result in evaluating circular references and causing StackOverflowError**. In the example above, the `Book` entity 
 will try to fetch all authors of the book. The `Author` entity in turn will try to find all books of the author. This process will keep repeating until it results in an error.
 
-**2. `Avoid @EqualsAndHashCode` : **
+**2. `Avoid @EqualsAndHashCode :`**
 Lombok uses all non-final attributes to evaluate and override default equals and hashCode. This isn't always desirable in case of entities due to the following reasons:
 1. Most primary keys in the database are **auto generated** (either using sequences or UUID) 
 while the insertion is carried out. This **can cause issues in the hashCode computation process**
 as the `ID` is not available beforehand causing unexpected results.
 2. **Every database record is uniquely identified by its primary key**. In such cases using the Lombok implementation of @EqualsAndHashCode might not be ideal. 
 
-Although Lombok allows us to include and exclude attributes, for the sake of brevity it might be a better option to design and override these methods ourselves and not rely on Lombok.
+Although Lombok allows us to include and exclude attributes, for the sake of brevity it might be a **better option to design and override these methods ourselves** and not rely on Lombok.
 
 ### Lombok Annotations hide violations
 Consider a model class in the example below:
@@ -405,18 +405,14 @@ It is easy to lose track of dependent objects with Lombok.
 4. Since @Builder gives a lot of flexibility in object creation it **can cause objects to be in an invalid state**. 
 Therefore, make sure all the required attributes are assigned values during object creation.
 5. When using test coverage tools like Jacoco, Lombok can cause problems since **Jacoco cannot distinguish between lombok generated code and normal source code**. 
-You might want to consider excluding Lombok for Jacoco test coverage. More information on this is available [here] (https://github.com/jacoco/jacoco/pull/495)
+You might want to consider excluding Lombok for Jacoco test coverage. More information on this is available [here](https://github.com/jacoco/jacoco/pull/495)
 6. **Use @SneakyThrows for checked exceptions that you don't intend to selectively catch**. Otherwise, wrap them in runtime exceptions that you throw instead.
-7. Using too many @SneakyThrows in an application could make it **difficult to trace and debug errors**.
+7. **Overusing @SneakyThrows** in an application could make it **difficult to trace and debug errors**.
 
 ## Conclusion
 
 I hope this article helped you gain a better understanding of how to use Lombok. 
 It is a powerful library that has a lot of potential if used well. And as the saying goes
 > With great power, comes great responsibility.
-
-
-
-
 
 
