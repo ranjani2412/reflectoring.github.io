@@ -9,15 +9,35 @@ image: images/stock/0010-gray-lego-1200x628-branded.jpg
 url: be-informed-with-project-lombok
 ---
 
-While Project Lombok is a great library, it can have consequences if not used cautiously.
-This article focuses on some pointers to be considered when designing an application that uses Lombok.
+**Project Lombok** is a popular library that helps you write **clear, concise and less repetitive code**.
+However, among the developer community, it has been both embraced and criticised for reasons I would like to elaborate here.
+
+In this article, we will focus on factors that will help you make an informed decision about using the library effectively
+and being wary of its consequences.
+
+## Code Example
+
+This article is accompanied by working code examples that demonstrates commonly used Lombok features on [Github.](https://github.com/thombergs/code-examples)
+
 
 ## What is Lombok
-Project Lombok is a java library that helps **reduce boilerplate code** during development by adding a few annotations. This helps the developers **save time, space and improves code readability**.
+
+According to official docs,
+
+>  "Project Lombok is a java library that automatically plugs into your editor and build tools, spicing up your Java."
+
+This library comprises a set of user-friendly annotations that generate the code at compile-time, helping the developers **save time, space and improves code readability**.
+
+## IDE support 
+
+All popular IDEs support Lombok via a plugin. We need to ensure annotation processing is enabled as below.
+{{% image alt="settings" src="images/posts/lombok/settings.PNG" %}}
+This helps the IDE generate the source at compile-time and helps us with code debugging.
 
 ### Setting up a project with Lombok
-To use the Lombok features in a new or an existing project, all we need is to add a dependency to the build file as shown below.
-Further, since this library has a compile-time dependency we make the scope `provided` when using Maven. This makes the Lombok libraries available to the compiler, but it is not a dependency of the final deployable jar.
+
+To use the Lombok features in a new or an existing project, all we need is to add a compile-time dependency to the build file as shown below.
+This makes the Lombok libraries available to the compiler, but it is not a dependency of the final deployable jar.
 
  `Maven`
  ````xml
@@ -80,24 +100,33 @@ Lombok simplifies the above **plain Java class** to this :
 The above code looks much cleaner and easier to write and understand.
 
 ## How Lombok works
-All annotations in Java are processed during compile time by a set of annotation processors. Most annotation processors generate new files or perform compile-time checks. Lombok processes its annotations differently. It modifies the generated classes by changing the **Abstract Syntax Tree (AST)**. **The Java Compiler Specification does not prevent annotation processors from modifying source files.** 
+
+All annotations in Java are processed during compile time by a set of annotation processors.
+Although the specification for annotation processing in Java has been around since Java6, 
+the language did not introduce Lombok-like tooling since the specification publicly 
+does not allow you to modify the **Abstract Syntax tree (AST)**.
+The specification only mentions that annotation processors generate new files and documentation. 
+Since **the Java Compiler Specification does not prevent annotation processors from modifying source files,** 
 Lombok developers have cleverly used this loophole to their advantage. 
-For more information on how annotation processing in Java works, refer here.
+For more information on how annotation processing in Java works, [refer here](https://reflectoring.io/java-annotation-processing/).
 
 ## Advantages of Lombok
+
 Let us take a look at some of the most prominent benefits of using Lombok.
 
 ### Clean code
-With Lombok, we can replace all boiler-plate code with meaningful annotations. This helps the developer focus on business logic.
-Also, annotation such as @Data is a convenient shortcut for @ToString, @EqualsAndHashCode, @Getter / @Setter and @RequiredArgsConstructor together.
-Since the code is more concise it also helps modification and addition of new fields easier.
-List of all available annotations is available here. 
+
+With Lombok, we can replace boiler-plate code with meaningful annotations. This helps the developer focus on business logic.
+Also, annotation such as `@Data` is a convenient shortcut for `@ToString`, `@EqualsAndHashCode`, `@Getter` / `@Setter` and `@RequiredArgsConstructor` together.
+Since the code is more concise, modification and addition of new fields is easier.
+List of all available annotations is available [here](https://projectlombok.org/features/all). 
 
 ### Simplifies creation of complex objects
-The Builder pattern is generally used when we need to create objects that are complex in nature, and we need some flexibility(in constructor arguments) during its creation. 
-@Builder annotation simplifies the object creation process.
 
-Consider the below example that demonstrates use of @Builder
+The Builder pattern is typically used **when we need to create objects that are complex and flexible** (in constructor arguments). 
+With Lombok, this is achieved using @Builder.
+
+Consider the below example:
 
  ````java
     @Builder
@@ -108,7 +137,7 @@ Consider the below example that demonstrates use of @Builder
         private String acctStatus;
     }
  ````
- Let's use Intellij Idea Delombok feature to understand the code written behind the scenes
+ Let's use Intellij Idea `Delombok` feature to understand the code written behind the scenes
 
  {{% image alt="delombok example" src="images/posts/lombok/delombok.png" %}}
 
@@ -116,10 +145,10 @@ Consider the below example that demonstrates use of @Builder
     public class Account {
         private String acctNo;
         private String acctName;
-        private Date dateOfJoin;
+        private String dateOfJoin;
         private String acctStatus;
     
-        Account(String acctNo, String acctName, Date dateOfJoin, String acctStatus) {
+        Account(String acctNo, String acctName, String dateOfJoin, String acctStatus) {
             this.acctNo = acctNo;
             this.acctName = acctName;
             this.dateOfJoin = dateOfJoin;
@@ -133,7 +162,7 @@ Consider the below example that demonstrates use of @Builder
         public static class AccountBuilder {
             private String acctNo;
             private String acctName;
-            private Date dateOfJoin;
+            private String dateOfJoin;
             private String acctStatus;
     
             AccountBuilder() {
@@ -149,7 +178,7 @@ Consider the below example that demonstrates use of @Builder
                 return this;
             }
     
-            public AccountBuilder dateOfJoin(Date dateOfJoin) {
+            public AccountBuilder dateOfJoin(String dateOfJoin) {
                 this.dateOfJoin = dateOfJoin;
                 return this;
             }
@@ -169,8 +198,9 @@ Consider the below example that demonstrates use of @Builder
         }
     }
  ````
-The code written with Lombok is much easier to understand than the one above which is too verbose. Internally, Lombok ensures that the standard process of creating the Builder class is followed and replaces the annotation with the verbose code above, hiding all the complexity and making it much more concise.
-Now, we can create objects just as any other standard Builder class.
+The code written with Lombok is much easier to understand than the one above which is too verbose. 
+As you can see, **all the complexity of creating the Builder class is hidden from the developer, making the code more precise.**
+Now, you can create objects easily.
  ````text
     Account account = Account.builder().acctName("Savings")
         .acctNo("A001090")
@@ -178,32 +208,214 @@ Now, we can create objects just as any other standard Builder class.
  ````
 
 ### Creating immutable objects made easy
-Once created, an immutable object cannot be modified. The concept of immutability is vital when creating a Java application. Some of its benefits include 
-thread safety, can be cached, can be used as keys in a Collection. The core java has a number of immutable classes such as String, StringBuffer, Integer, Float and so on.
-Lombok makes creation of immutable objects easier.
+
+Once created, an immutable object cannot be modified. The concept of immutability is vital when creating a Java application. 
+Some of its benefits include thread safety, ease of caching, ease of object maintainability. 
+To understand why it is a good idea to make classes immutable refer this [article] (https://reflectoring.io/java-immutables/).
 
  ````java
     @Value
-    @Builder
     public class Person {
         private String firstName;
         private String lastName;
         private String socialSecurityNo;
+        private List<String> hobbies;
     }
  ````
-The @Value annotation ensures all the steps to create immutable classes are followed
- - **Make the class final**
- - **Make the fields final**
- - **Generate only getters**
+The @Value annotation ensures the state of the object is unchanged once created
+ - **Makes the class final**
+ - **Makes the fields final**
+ - **Generates only getters**
 
 In other words the @Value annotation is a shorthand of all of the below Lombok annotations *@Getter*, *@FieldDefaults(makeFinal=true, level=AccessLevel.PRIVATE)*,
 *@AllArgsConstructor*, *@ToString*, *@EqualsAndHashCode*.
 We can further enforce immutability in the above example by adding **@AllArgsConstructor(access = AccessLevel.PRIVATE)** to make the constructor private and force object creation via the Builder pattern.
 
-These are some benefits of using Lombok and by now you would have realised the **value these annotations can provide to the code**.
-However, in my experience of using Lombok, I have noticed developers misusing these annotations and **using them all around making the code messy and prone to errors**. In the next section, I will brief some of the *DONT'S* to keep in mind when working with Lombok.
+These are some benefits of using Lombok. By now you would have realised the **value these annotations can provide to your code**.
+However, in my experience of using Lombok, I have noticed developers misusing these annotations and **using them all around making the code messy and prone to errors**. 
+In the next section, I will brief some of the *DONT'S* to keep in mind when working with Lombok.
 
 ## Caveats with Lombok
+
+### Using Lombok with entities
+
+Although using Lombok to generate boilerplate code for entities is attractive, it **does not work well with JPA and hibernate entities**.
+Below are a few examples of what could go wrong when using Lombok with JPA.
+
+**1. `Avoid @ToString : `**
+**The seemingly harmless @ToString could do more harm to your application than you would expect.**
+Consider the below entity classes
+
+````java
+    @Entity
+    @Table(name = "BOOK")
+    @Getter
+    @Setter 
+    @ToString
+    public class Book {
+        @Id
+        private long id;
+    
+        private String name;
+    
+        @ManyToMany(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
+        @JoinTable(name = "publisher_book", joinColumns = @JoinColumn(name = "book_id", referencedColumnName = "id"), inverseJoinColumns = @JoinColumn(name = "publisher_id", referencedColumnName = "id"))
+        private Set<Publisher> publishers;
+    }
+
+````
+````java
+
+@Entity
+@Getter
+@Setter
+@Builder
+@ToString
+public class Publisher implements Serializable {
+
+    @Id
+    private long id;
+
+    private String name;
+
+    @ManyToMany(mappedBy = "publishers")
+    private Set<Book> books;
+}
+
+````
+As you can see, there is a @ManyToMany relationship that requires a `JOIN` with another table to fetch data.
+The Repository class that fetches data from the table is as below:
+
+````java
+    @Repository
+    public interface BookRepository extends JpaRepository<Book, Long> {
+    }
+````
+There are two main problems here:
+1. In an entity class, not all attributes of an entity are initialized. **If an attribute has a FetchType of association LAZY,
+it will be invoked only when the attribute is used in the application**. However, @ToString(corresponding toString() method) would compute all attributes 
+of an entity making one or multiple database calls which can unintentionally cause performance issues.
+2. Further if we **call toString() on the entity outside the Transaction scope**, it could lead to `LazyInitializationException`.
+3. In case of associations like @ManyToMany between 2 entities, **logging the entity data could result in evaluating circular references and causing StackOverflowError**. In the example above, the `Book` entity 
+will try to fetch all authors of the book. The `Author` entity in turn will try to find all books of the author. This process will keep repeating until it results in an error.
+
+**2. `Avoid @EqualsAndHashCode` : **
+Lombok uses all non-final attributes to evaluate and override default equals and hashCode. This isn't always desirable in case of entities due to the following reasons:
+1. Most primary keys in the database are **auto generated** (either using sequences or UUID) 
+while the insertion is carried out. This **can cause issues in the hashCode computation process**
+as the `ID` is not available beforehand causing unexpected results.
+2. **Every database record is uniquely identified by its primary key**. In such cases using the Lombok implementation of @EqualsAndHashCode might not be ideal. 
+
+Although Lombok allows us to include and exclude attributes, for the sake of brevity it might be a better option to design and override these methods ourselves and not rely on Lombok.
+
+### Lombok Annotations hide violations
+Consider a model class in the example below:
+ ````java
+    @Data
+    @Builder
+    @AllArgsConstructor
+    public class CustomerDetails {
+    
+        private String id;
+        private String name;
+        private String buildingNm;
+        private String blockNo;
+        private String streetNm;
+        private String city;
+        private int postcode;
+        private String state;
+        private String country;
+        private Gender gender;
+        private String dateOfBirth;
+        private String email;
+        private String phoneNo;
+        private String drivingLicenseNo;
+        private String licenseIssueState;
+    }
+ ````
+The above class has the following **flaws**:
+1. It is a **poorly designed model class**. We could consider restructuring the fields to create separate classes to store Address and LicenseDetails.
+2. **@Builder hides the complexity of autowiring instances** especially if custom objects 
+having multiple dependencies are added to the class. This affects code readability and destroys the concept of Single Responsibility Principle.
+3. If you have an application that uses **checkstyle/Sonar**, using these **annotations can hide errors and warnings** which is not desirable.
+This is shown in the sample below:
+   {{% image alt="delombok example" src="images/posts/lombok/checkstyle.png" %}}
+   {{% image alt="delombok example" src="images/posts/lombok/checkstyle_err.png" %}}
+4. With @AllArgsConstructor referring to multiple same-type parameter, it is easy to accidentally define parameters out of order. 
+It affects code readability and introduces bugs that can be difficult to trace.
+
+In my experience I have seen huge complex objects having multiple dependencies.
+Developers tend to use these annotations to escape Sonar checks making it difficult to maintain the code.
+
+### @SneakyThrows can be evil
+Let's first consider this example:
+````java
+   public interface DataProcessor {
+       void dataProcess();
+   }   
+````
+Without @SneakyThrows an implementation of DataProcessor would be like this:
+````java
+   public class FileDataProcessor implements DataProcessor {
+       @Override
+       public void dataProcess() {
+           try {
+               processFile();
+           } catch (IOException e) {
+               e.printStackTrace();
+           }
+       }
+   
+       private void processFile() throws IOException {
+           File file = new File("sample.txt");
+           throw new IOException(); // forcibly throw
+       }
+   }
+````
+With @SneakyThrows the code gets simplified
+````java
+   public class FileDataProcessor implements DataProcessor {
+       @Override
+       @SneakyThrows
+       public void dataProcess() {
+          processFile();
+       }
+   
+       private void processFile() throws IOException {
+           File file = new File("sample.txt");
+           throw new IOException();
+       }
+   }
+````
+As we can see, this **avoids the hassle of catching or throwing checked exceptions**. In other words, it treats a checked exception like an unchecked one.
+This can be useful especially when writing lambda functions making the code concise and clean. However, since the annotation swallows the checked exception we cannot catch them explicitly. 
+Instead, we must handle the exceptions via a global exception handler.
+Therefore, **use it only when you don't intend to process the code selectively depending on the kind of Exception it throws**.
+**Ensure it is used cautiously and not as an alternative to bypass checked exceptions.**
+
+## Use Lombok with caution
+
+The power of Lombok cannot be underestimated or ignored. However, I would like to summarise the key points
+that will help you use Lombok in a better way.
+1. **Avoid using Lombok with entities**. It will be much easier generating the code yourself than debugging issues later.
+2. When designing POJO's **use only the Lombok annotations you require**.(Use shortcut annotations wisely).
+I would recommend using the Delombok feature to understand the code generated better.
+3. **Do not add too many dependencies in the POJO's**. Keep the classes relevant to the responsibility they are designed for. 
+It is easy to lose track of dependent objects with Lombok.
+4. Since @Builder gives a lot of flexibility in object creation it **can cause objects to be in an invalid state**. 
+Therefore, make sure all the required attributes are assigned values during object creation.
+5. When using test coverage tools like Jacoco, Lombok can cause problems since **Jacoco cannot distinguish between lombok generated code and normal source code**. 
+You might want to consider excluding Lombok for Jacoco test coverage. More information on this is available [here] (https://github.com/jacoco/jacoco/pull/495)
+6. **Use @SneakyThrows for checked exceptions that you don't intend to selectively catch**. Otherwise, wrap them in runtime exceptions that you throw instead.
+7. Using too many @SneakyThrows in an application could make it **difficult to trace and debug errors**.
+
+## Conclusion
+
+I hope this article helped you gain a better understanding of how to use Lombok. 
+It is a powerful library that has a lot of potential if used well. And as the saying goes
+> With great power, comes great responsibility.
+
+
 
 
 
