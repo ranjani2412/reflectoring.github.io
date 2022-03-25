@@ -462,7 +462,7 @@ It is easy to lose track of dependent objects with Lombok.
 Therefore, make sure all the required attributes are assigned values during object creation.
 5. **DO NOT write code that could have a huge dependency on the background code Lombok generates**.
 6. When using test coverage tools like Jacoco, Lombok can cause problems since **Jacoco cannot distinguish between lombok generated code and normal source code**. 
-You might want to consider excluding Lombok for Jacoco test coverage. More information on this is available [here](https://github.com/jacoco/jacoco/pull/495)
+You might want to consider **excluding Lombok generated code for Jacoco test coverage**. More information on this is available [here](https://github.com/jacoco/jacoco/pull/495)
 7. **Use @SneakyThrows for checked exceptions that you don't intend to selectively catch**. Otherwise, wrap them in runtime exceptions that you throw instead.
 8. **Overusing @SneakyThrows** in an application could make it **difficult to trace and debug errors**.
 
