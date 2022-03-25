@@ -36,7 +36,7 @@ This helps the IDE generate the source at compile-time and helps us with code de
 
 ### Setting up a project with Lombok
 
-To use the Lombok features in a new or an existing project, all we need is to add a compile-time dependency to the build file as shown below.
+To use the Lombok features in a new or an existing project, all we need is to **add a compile-time dependency** to the build file as shown below.
 This makes the Lombok libraries available to the compiler, but it is not a dependency of the final deployable jar.
 
  `Maven`
@@ -124,7 +124,7 @@ List of all available annotations is available [here](https://projectlombok.org/
 ### Simplifies creation of complex objects
 
 The Builder pattern is typically used **when we need to create objects that are complex and flexible** (in constructor arguments). 
-With Lombok, this is achieved using @Builder.
+With Lombok, this is achieved using `@Builder`.
 
 Consider the below example:
 
@@ -199,8 +199,8 @@ Consider the below example:
     }
  ````
 The code written with Lombok is much easier to understand than the one above which is too verbose. 
-As you can see, **all the complexity of creating the Builder class is hidden from the developer, making the code more precise.**
-Now, you can create objects easily.
+As we can see, **all the complexity of creating the Builder class is hidden from the developer, making the code more precise.**
+Now, we can create objects easily.
  ````text
     Account account = Account.builder().acctName("Savings")
         .acctNo("A001090")
@@ -222,10 +222,57 @@ To understand why it is a good idea to make classes immutable refer this [articl
         private List<String> hobbies;
     }
  ````
+
+Delomboked version is as below:
+ 
+ ````java
+ public final class Person {
+   private final String firstName;
+   private final String lastName;
+   private final String socialSecurityNo;
+   private final List<String> hobbies;
+
+   public Person(String firstName, String lastName, String socialSecurityNo, List<String> hobbies) {
+      this.firstName = firstName;
+      this.lastName = lastName;
+      this.socialSecurityNo = socialSecurityNo;
+      this.hobbies = hobbies;
+   }
+
+   public String getFirstName() {
+      return this.firstName;
+   }
+
+   public String getLastName() {
+      return this.lastName;
+   }
+
+   public String getSocialSecurityNo() {
+      return this.socialSecurityNo;
+   }
+
+   public List<String> getHobbies() {
+      return this.hobbies;
+   }
+
+   public boolean equals(final Object o) {
+      // Default equals implementation
+   }
+
+   public int hashCode() {
+      // default hashcode implementation
+   }
+
+   public String toString() {
+      return "Person(firstName=" + this.getFirstName() + ", lastName=" + this.getLastName() + ", socialSecurityNo=" + this.getSocialSecurityNo() + ", hobbies=" + this.getHobbies() + ")";
+   }
+}
+ ````
 The @Value annotation ensures the state of the object is unchanged once created.
  - **Makes the class final**
  - **Makes the fields final**
  - **Generates only getters**
+ - **All argument constructor for object creation**
 
 In other words the @Value annotation is a shorthand of all of the below Lombok annotations `@Getter`, `@FieldDefaults(makeFinal=true, level=AccessLevel.PRIVATE)`,
 `@AllArgsConstructor`, `@ToString`, `@EqualsAndHashCode`.
@@ -341,13 +388,22 @@ having multiple dependencies are added to the class. This affects code readabili
 This is shown in the sample below:
    {{% image alt="delombok example" src="images/posts/lombok/checkstyle.png" %}}
    {{% image alt="delombok example" src="images/posts/lombok/checkstyle_err.png" %}}
-4. With @AllArgsConstructor referring to multiple same-type parameter, it is easy to accidentally define parameters out of order. 
+4. With `@AllArgsConstructor` referring to multiple same-type parameter, it is easy to accidentally define parameters out of order. 
 It affects code readability and introduces bugs that can be difficult to trace.
 
 In my experience I have seen huge complex objects having multiple dependencies.
 Developers tend to use these annotations to escape Sonar checks making it difficult to maintain the code.
 
+### Logic within application should not depend on the generated code
+
+It is human nature to try and generalize features when building an application. However, these features should **NEVER** depend on 
+the code that Lombok generates. *For instance, consider you create a base feature that uses reflection to create objects. 
+The DTOs use @Builder and you use the Lombok generated code in that feature. If someone decides to create new DTOs 
+that use @Builder(setterPrefix = "with"), this could be catastrophic in huge, complex applications*. 
+Since Lombok provides a lot of flexibility in the way objects are created, we should be equally responsible and use them appropriately.
+
 ### @SneakyThrows can be evil
+
 Let's first consider this example:
 ````java
    public interface DataProcessor {
@@ -398,16 +454,17 @@ Therefore, **use it only when you don't intend to process the code selectively d
 The power of Lombok cannot be underestimated or ignored. However, I would like to summarise the key points
 that will help you use Lombok in a better way.
 1. **Avoid using Lombok with entities**. It will be much easier generating the code yourself than debugging issues later.
-2. When designing POJO's **use only the Lombok annotations you require**.(Use shortcut annotations wisely).
+2. When designing POJO's **use only the Lombok annotations you require**.(Use shorthand annotations wisely).
 I would recommend using the Delombok feature to understand the code generated better.
 3. **Do not add too many dependencies in the POJO's**. Keep the classes relevant to the responsibility they are designed for. 
 It is easy to lose track of dependent objects with Lombok.
 4. Since @Builder gives a lot of flexibility in object creation it **can cause objects to be in an invalid state**. 
 Therefore, make sure all the required attributes are assigned values during object creation.
-5. When using test coverage tools like Jacoco, Lombok can cause problems since **Jacoco cannot distinguish between lombok generated code and normal source code**. 
+5. **DO NOT write code that could have a huge dependency on the background code Lombok generates**.
+6. When using test coverage tools like Jacoco, Lombok can cause problems since **Jacoco cannot distinguish between lombok generated code and normal source code**. 
 You might want to consider excluding Lombok for Jacoco test coverage. More information on this is available [here](https://github.com/jacoco/jacoco/pull/495)
-6. **Use @SneakyThrows for checked exceptions that you don't intend to selectively catch**. Otherwise, wrap them in runtime exceptions that you throw instead.
-7. **Overusing @SneakyThrows** in an application could make it **difficult to trace and debug errors**.
+7. **Use @SneakyThrows for checked exceptions that you don't intend to selectively catch**. Otherwise, wrap them in runtime exceptions that you throw instead.
+8. **Overusing @SneakyThrows** in an application could make it **difficult to trace and debug errors**.
 
 ## Conclusion
 
