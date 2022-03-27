@@ -278,7 +278,7 @@ We can further enforce immutability in the above example by adding **@AllArgsCon
 
 These are some benefits of using Lombok. By now you would have realised the **value these annotations can provide to your code**.
 However, in my experience of using Lombok, I have noticed developers misusing these annotations and **using them all around making the code messy and prone to errors**.
-In the next section, I will briefly explain situations **when Lombok isn't an ideal choice**.
+In the next section, I will briefly explain situations **where Lombok could be used incorrectly**.
 
 ## Caveats with Lombok
 
@@ -337,9 +337,9 @@ The Repository class that fetches data from the table is as below:
     }
 ````
 There are three main problems here:
-1. In an entity class, not all attributes of an entity are initialized. **If an attribute has a FetchType of association LAZY,
-it gets invoked only when used in the application**. However, @ToString(corresponding toString() method) would compute all attributes 
-of an entity making one or multiple database calls which can unintentionally cause performance issues.
+1. In an entity class, not all attributes of an entity are initialized. If an attribute has a FetchType of association LAZY,
+it gets invoked only when used in the application. However, **@ToString would compute all attributes 
+of an entity(irrespective of whether it is used) making one or multiple database calls** which can unintentionally **cause performance issues**.
 2. Further, if we **call toString() on the entity outside the Transaction scope**, it could lead to `LazyInitializationException`.
 3. In the case of associations like @ManyToMany between 2 entities, **logging the entity data could result in evaluating circular references and causing StackOverflowError**. In the example above, the `Book` entity 
 will try to fetch all authors of the book. The `Author` entity in turn will try to find all books of the author. This process will keep repeating until it results in an error.
