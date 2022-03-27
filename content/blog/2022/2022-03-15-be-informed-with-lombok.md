@@ -9,7 +9,7 @@ image: images/stock/0010-gray-lego-1200x628-branded.jpg
 url: be-informed-with-project-lombok
 ---
 
-**Project Lombok** is a popular library that help you write **clear, concise and less repetitive code**.
+**Project Lombok** is a popular library that help us write **clear, concise and less repetitive code**.
 However, among the developer community, it has been both embraced and criticised for reasons I would like to elaborate here.
 
 In this article, we will focus on factors that will help you make an informed decision about using the library effectively
@@ -102,7 +102,7 @@ The above code looks much cleaner and easier to write and understand.
 ## How Lombok works
 
 All annotations in Java are processed during compile time by a set of annotation processors. 
-The Java specification publicly does not allow you to modify the **Abstract Syntax Tree (AST)**. 
+The Java specification publicly does not allow us to modify the **Abstract Syntax Tree (AST)**. 
 It only mentions that annotation processors generate new files and documentation. 
 **Since the Java Compiler Specification does not prevent annotation processors from modifying source files**, 
 Lombok developers have cleverly used this loophole to their advantage. 
@@ -288,7 +288,7 @@ Although using Lombok to generate boilerplate code for entities is attractive, i
 Below are a few examples of what could go wrong when using Lombok with JPA.
 
 **1. `Avoid @ToString: `**
-**The seemingly harmless @ToString could do more harm to your application than you would expect.**
+**The seemingly harmless @ToString could do more harm to our application than we would expect.**
 Consider the below entity classes
 
 ````java
@@ -328,7 +328,7 @@ public class Publisher implements Serializable {
 }
 
 ````
-As you can see, there is a @ManyToMany relationship that requires a `JOIN` with another table to fetch data.
+As we can see, there is a @ManyToMany relationship that requires a `JOIN` with another table to fetch data.
 The Repository class that fetches data from the table is as below:
 
 ````java
@@ -396,8 +396,8 @@ Developers tend to use these annotations to escape Sonar checks making it diffic
 ### Logic within application should not depend on the generated code
 
 Apart from following good programming practices, developers try to generalize features to ensure re-usability. 
-However, these features should **NEVER** depend on the code that Lombok generates. *For instance, consider you create a base feature that uses reflection to create objects. 
-The DTOs use @Builder and you use the Lombok generated code in it. If someone decides to create new DTOs 
+However, these features should **NEVER** depend on the code that Lombok generates. *For instance, consider we create a base feature that uses reflection to create objects. 
+The DTOs use @Builder, and we use the Lombok generated code in it. If someone decides to create new DTOs 
 that use @Builder(setterPrefix = "with"), this could be catastrophic in huge, complex applications*. 
 Since Lombok provides a lot of flexibility in the way objects are created, we should be equally responsible and use them appropriately.
 
