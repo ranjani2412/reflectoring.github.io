@@ -395,8 +395,8 @@ Developers tend to use these annotations to escape Sonar checks making it diffic
 
 ### Logic within application should not depend on the generated code
 
-It is human nature to try and generalize features when building an application. However, these features should **NEVER** depend on 
-the code that Lombok generates. *For instance, consider you create a base feature that uses reflection to create objects. 
+Apart from following good programming practices, developers try to generalize features to ensure re-usability. 
+However, these features should **NEVER** depend on the code that Lombok generates. *For instance, consider you create a base feature that uses reflection to create objects. 
 The DTOs use @Builder and you use the Lombok generated code in it. If someone decides to create new DTOs 
 that use @Builder(setterPrefix = "with"), this could be catastrophic in huge, complex applications*. 
 Since Lombok provides a lot of flexibility in the way objects are created, we should be equally responsible and use them appropriately.
